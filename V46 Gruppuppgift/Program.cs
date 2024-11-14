@@ -1,8 +1,11 @@
 ﻿namespace Query_Expressions_Gruppövning
 {
     using System;
+    using System.Collections;
     using System.Collections.Generic;
-    using System.Diagnostics;
+
+    using System.Diagnostics.Metrics;
+
     using System.Globalization;
     using System.IO;
     using System.Linq;
@@ -99,6 +102,36 @@
                     AvgPrice = g.Average(p => p.Price),
                     Totalprice = g.Sum(p => p.Price)
 
+        public static void Tools()
+        {
+            //Lista alla produkter i kategorin "Verktyg" sorterade efter pris(stigande).
+
+            var tools = from t in inventory
+                        where t.Category == "Verktyg"
+                        select t;
+
+            foreach (var t in tools)
+            {
+                Console.WriteLine(t);
+            }
+        }
+
+        public static void CategoryList()
+        {
+            //Gruppera produkterna efter kategori och visa antalet produkter i varje kategori.
+
+            var kategori = from k in inventory
+                           group k by k.Category into Categories
+                           select new { 
+                               Categories = Categories.Key, 
+                               quantityNumber = Categories.Count() };
+
+            foreach (var k in kategori)
+            {
+                Console.WriteLine($"{k.Categories} Antal: {k.quantityNumber}");
+            }
+                           
+
                 });
             foreach (var products in findHighestAvgPriceOfCat)
             {
@@ -136,6 +169,7 @@
             var a = inventory
                 .Sum(p => p.Price * p.Quantity);
             Console.WriteLine($"{a:C}");
+
         }
     }
 }
