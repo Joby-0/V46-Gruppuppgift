@@ -3,10 +3,13 @@
     using System;
     using System.Collections;
     using System.Collections.Generic;
+
     using System.Diagnostics.Metrics;
+
     using System.Globalization;
     using System.IO;
     using System.Linq;
+    using System.Xml.Linq;
 
     class Product
     {
@@ -33,10 +36,10 @@
             inventoryFileGenerator.GenerateInventoryFile("inventory.txt", 5000);
             var prod = LoadInventoryData();
 
-            // Implementera query expressions här
-            CategoryList();
+
 
             Console.ReadLine();
+            
         }
 
         static List<Product> LoadInventoryData()
@@ -58,6 +61,46 @@
                             }).ToList();
             return inventory;
         }
+        static void FiveProduktsWithLowSaldo()
+        {
+            Console.Clear();
+            var fiveProduktsWithLowSaldo = inventory
+                .OrderBy(p => p.Quantity)
+                .Take(5);
+            foreach (var produkt in fiveProduktsWithLowSaldo)
+            {
+                Console.WriteLine(produkt);
+            }
+
+        }
+        static void FindLongTimeToRestock()
+        {
+            Console.WriteLine();
+            var longTimeToRestock = inventory
+                .Where(p => p.LastRestocked < DateTime.Now - new TimeSpan(30, 0, 0, 0))
+                .OrderBy(p => p.LastRestocked);
+
+            foreach (var product in longTimeToRestock)
+            {
+                Console.WriteLine(product);
+            }
+
+        }
+        static void FindHighestAvgPriceOfCat()
+        {
+
+
+
+
+            var findHighestAvgPriceOfCat = inventory
+                .GroupBy(p => p.Category)
+                .OrderBy(g => g.Key)
+                .Select(g => new
+                {
+                    Category = g.Key,
+                    Count = g.Count(),
+                    AvgPrice = g.Average(p => p.Price),
+                    Totalprice = g.Sum(p => p.Price)
 
         public static void Tools()
         {
@@ -88,6 +131,45 @@
                 Console.WriteLine($"{k.Categories} Antal: {k.quantityNumber}");
             }
                            
+
+                });
+            foreach (var products in findHighestAvgPriceOfCat)
+            {
+                Console.WriteLine(products.Category);
+                Console.WriteLine($" - Count {products.Count}");
+                Console.WriteLine($" - Avg Price {products.AvgPrice:F}");
+                Console.WriteLine($" - Total Price {products.Totalprice:C}");
+
+            }
+
+
+
+
+        }
+        static void FindProduktInvPriceOvertosundsofdollors()
+        {
+            var v = inventory
+                .Where(p => p.Price * p.Quantity > 1000)
+                .GroupBy(p => p.Name)
+                .OrderBy(p => p.Key)
+                .Select(p => new
+                {
+                    Produktname = p.Key,
+                    Totalprice = p.Sum(p => p.Price * p.Quantity)
+
+                });
+            foreach (var item in v)
+            {
+                Console.WriteLine($"{item.Produktname} - {item.Totalprice:C}");
+
+            }
+        }
+        static void FindTheTotolValueOfALL()
+        {
+            var a = inventory
+                .Sum(p => p.Price * p.Quantity);
+            Console.WriteLine($"{a:C}");
+
         }
     }
 }
